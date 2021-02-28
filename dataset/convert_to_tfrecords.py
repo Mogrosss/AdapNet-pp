@@ -52,7 +52,7 @@ def convert(f, record_name, mean_flag):
         label = cv2.imread(name[1], cv2.IMREAD_ANYCOLOR)
         try:
             assert len(label.shape)==2
-        except AssertionError, e:
+        except AssertionError as e:
             raise( AssertionError( "Label should be one channel!" ) )
             
         height = modality1.shape[0]
@@ -68,7 +68,7 @@ def convert(f, record_name, mean_flag):
         writer.write(example.SerializeToString())
 
         if (count+1)%1 == 0:
-            print 'Processed data: {}'.format(count)
+            print ('Processed data: {}'.format(count))
 
         count = count+1
 
@@ -81,12 +81,12 @@ def main():
     if args.file:
         file_list = decode(args.file)
     else:
-        print '--file file_address missing'
+        print ('--file file_address missing')
         return
     if args.record:
         record_name = args.record
     else:
-        print '--record tfrecord name missing'
+        print ('--record tfrecord name missing')
         return
     mean_flag = False
     if args.record:

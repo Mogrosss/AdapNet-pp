@@ -54,7 +54,7 @@ def compute_output_matrix(label_max, pred_max, output_matrix):
     # Output:
     # output_matrix shape(NUM_CLASSES,3): columns with total count of true positives,
     #                                     false positives and false negatives.
-    for i in xrange(output_matrix.shape[0]):
+    for i in range(output_matrix.shape[0]):
         temp = pred_max == i
         temp_l = label_max == i
         tp = np.logical_and(temp, temp_l)

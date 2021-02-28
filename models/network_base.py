@@ -17,7 +17,7 @@ import tensorflow as tf
 
 class Network(object):
     def __init__(self):
-        print 'Network_Construction'
+        print ('Network_Construction')
 
     def _setup(self, data):
         raise NotImplementedError("Implement this method.")

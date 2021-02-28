@@ -159,7 +159,7 @@ class AdapNet_pp(network_base.Network):
             self._create_loss(label)
 
 def main():
-    print 'Do Nothing'
+    print ('Do Nothing')
    
 if __name__ == '__main__':
     main()
