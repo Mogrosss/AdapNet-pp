@@ -33,47 +33,47 @@ def train_func(config):
     resnet_name = 'resnet_v2_50'
     global_step = tf.Variable(0, trainable=False, name='Global_Step')
 
-    with tf.variable_scope(resnet_name):
+    with tf.compat.v1.variable_scope(resnet_name):
         model = model_func(num_classes=config['num_classes'], learning_rate=config['learning_rate'],
                            decay_steps=config['max_iteration'], power=config['power'],
                            global_step=global_step)
-        images_pl = tf.placeholder(tf.float32, [None, config['height'], config['width'], 3])
-        labels_pl = tf.placeholder(tf.float32, [None, config['height'], config['width'],
+        images_pl = tf.compat.v1.placeholder(tf.float32, [None, config['height'], config['width'], 3])
+        labels_pl = tf.compat.v1.placeholder(tf.float32, [None, config['height'], config['width'],
                                                 config['num_classes']])
         model.build_graph(images_pl, labels_pl)
         model.create_optimizer()
  
-    config1 = tf.ConfigProto()
+    config1 = tf.compat.v1.ConfigProto()
     config1.gpu_options.allow_growth = True
-    sess = tf.Session(config=config1)
-    sess.run(tf.global_variables_initializer())
+    sess = tf.compat.v1.Session(config=config1)
+    sess.run(tf.compat.v1.global_variables_initializer())
     step = 0
     total_loss = 0.0
     t0 = None
     ckpt = tf.train.get_checkpoint_state(os.path.dirname(os.path.join(config['checkpoint'],
                                                                       'checkpoint')))
     if ckpt and ckpt.model_checkpoint_path:
-        saver = tf.train.Saver(max_to_keep=1000)
+        saver = tf.compat.v1.train.Saver(max_to_keep=1000)
         saver.restore(sess, ckpt.model_checkpoint_path)
         step = int(ckpt.model_checkpoint_path.split('/')[-1].split('-')[-1])+1
-        sess.run(tf.assign(global_step, step))
+        sess.run(tf.compat.v1.assign(global_step, step))
         print('Model Loaded')
 
     else:
         if 'intialize' in config:
-            reader = tf.train.NewCheckpointReader(config['intialize'])
+            reader = tf.compat.v1.train.NewCheckpointReader(config['intialize'])
             var_str = reader.debug_string()
             name_var = re.findall('[A-Za-z0-9/:_]+ ', var_str)
-            import_variables = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES)
+            import_variables = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES)
             initialize_variables = {} 
             for var in import_variables: 
                 if var.name+' ' in  name_var:
                     initialize_variables[var.name] = var
 
-            saver = tf.train.Saver(initialize_variables)
+            saver = tf.compat.v1.train.Saver(initialize_variables)
             saver.restore(save_path=config['intialize'], sess=sess)
             print ('Pretrained Intialization')
-        saver = tf.train.Saver(max_to_keep=1000)
+        saver = tf.compat.v1.train.Saver(max_to_keep=1000)
        
     while 1:
         try:

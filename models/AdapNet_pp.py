@@ -47,7 +47,7 @@ class AdapNet_pp(network_base.Network):
      
     def _setup(self, data):   
         self.input_shape = data.get_shape()
-        with tf.variable_scope('conv0'):
+        with tf.compat.v1.variable_scope('conv0'):
             self.data_after_bn = self.batch_norm(data)
         self.conv_7x7_out = self.conv_batchN_relu(self.data_after_bn, 7, 2, 64, name='conv1')
         self.max_pool_out = self.pool(self.conv_7x7_out, 3, 2)
@@ -56,7 +56,7 @@ class AdapNet_pp(network_base.Network):
         self.m_b1_out = self.unit_0(self.max_pool_out, self.filters[0], 1, 1)
         for unit_index in range(1, self.residual_units[0]):
             self.m_b1_out = self.unit_1(self.m_b1_out, self.filters[0], 1, 1, unit_index+1)
-        with tf.variable_scope('block1/unit_%d/bottleneck_v1/conv3'%self.residual_units[0]):
+        with tf.compat.v1.variable_scope('block1/unit_%d/bottleneck_v1/conv3'%self.residual_units[0]):
             self.b1_out = tf.nn.relu(self.batch_norm(self.m_b1_out))
         
         ##block2
@@ -64,7 +64,7 @@ class AdapNet_pp(network_base.Network):
         for unit_index in range(1, self.residual_units[1]-1):
             self.m_b2_out = self.unit_1(self.m_b2_out, self.filters[1], 1, 2, unit_index+1)
         self.m_b2_out = self.unit_3(self.m_b2_out, self.filters[1], 2, self.residual_units[1])
-        with tf.variable_scope('block2/unit_%d/bottleneck_v1/conv3'%self.residual_units[1]):
+        with tf.compat.v1.variable_scope('block2/unit_%d/bottleneck_v1/conv3'%self.residual_units[1]):
             self.b2_out = tf.nn.relu(self.batch_norm(self.m_b2_out))
 
         ##block3
@@ -80,7 +80,7 @@ class AdapNet_pp(network_base.Network):
             if unit_index == 2:
                 dropout = True
             self.m_b4_out = self.unit_4(self.m_b4_out, self.filters[3], 4, unit_index+1, dropout=dropout)
-        with tf.variable_scope('block4/unit_%d/bottleneck_v1/conv3'%self.residual_units[3]):
+        with tf.compat.v1.variable_scope('block4/unit_%d/bottleneck_v1/conv3'%self.residual_units[3]):
             self.b4_out = tf.nn.relu(self.batch_norm(self.m_b4_out))
 
         ##skip
@@ -105,53 +105,53 @@ class AdapNet_pp(network_base.Network):
         self.ID = self.aconv_batchN_relu(self.ID, 3, self.eAspp_rate[2], 64, name='conv249')
         self.ID = self.conv_batchN_relu(self.ID, 1, 1, 256, name='conv91')
 
-        self.IE = tf.expand_dims(tf.expand_dims(tf.reduce_mean(self.b4_out, [1, 2]), 1), 2)
+        self.IE = tf.expand_dims(tf.expand_dims(tf.reduce_mean(input_tensor=self.b4_out, axis=[1, 2]), 1), 2)
         self.IE = self.conv_batchN_relu(self.IE, 1, 1, 256, name='conv57')
         self.IE_shape = self.b4_out.get_shape()
-        self.IE = tf.image.resize_images(self.IE, [self.IE_shape[1], self.IE_shape[2]])
+        self.IE = tf.image.resize(self.IE, [self.IE_shape[1], self.IE_shape[2]])
 
         self.eAspp_out = self.conv_batchN_relu(tf.concat((self.IA, self.IB, self.IC, self.ID, self.IE), 3), 1, 1, 256, name='conv10', relu=False)
         
         ### Upsample/Decoder
-        with tf.variable_scope('conv41'):
+        with tf.compat.v1.variable_scope('conv41'):
             self.deconv_up1 = self.tconv2d(self.eAspp_out, 4, 256, 2)
             self.deconv_up1 = self.batch_norm(self.deconv_up1)
 
         self.up1 = self.conv_batchN_relu(tf.concat((self.deconv_up1, self.skip2), 3), 3, 1, 256, name='conv89') 
         self.up1 = self.conv_batchN_relu(self.up1, 3, 1, 256, name='conv96')
-        with tf.variable_scope('conv16'):
+        with tf.compat.v1.variable_scope('conv16'):
             self.deconv_up2 = self.tconv2d(self.up1, 4, 256, 2)
             self.deconv_up2 = self.batch_norm(self.deconv_up2)
         self.up2 = self.conv_batchN_relu(tf.concat((self.deconv_up2, self.skip1), 3), 3, 1, 256, name='conv88') 
         self.up2 = self.conv_batchN_relu(self.up2, 3, 1, 256, name='conv95')
         self.up2 = self.conv_batchN_relu(self.up2, 1, 1, self.num_classes, name='conv78')
-        with tf.variable_scope('conv5'):
+        with tf.compat.v1.variable_scope('conv5'):
             self.deconv_up3 = self.tconv2d(self.up2, 8, self.num_classes, 4)
             self.deconv_up3 = self.batch_norm(self.deconv_up3)      
 
         self.softmax = tf.nn.softmax(self.deconv_up3)
         ## Auxilary
         if self.has_aux_loss:
-            self.aux1 = tf.nn.softmax(tf.image.resize_images(self.conv_batchN_relu(self.deconv_up2, 1, 1, self.num_classes, name='conv911', relu=False), [self.input_shape[1], self.input_shape[2]]))
-            self.aux2 = tf.nn.softmax(tf.image.resize_images(self.conv_batchN_relu(self.deconv_up1, 1, 1, self.num_classes, name='conv912', relu=False), [self.input_shape[1], self.input_shape[2]]))
+            self.aux1 = tf.nn.softmax(tf.image.resize(self.conv_batchN_relu(self.deconv_up2, 1, 1, self.num_classes, name='conv911', relu=False), [self.input_shape[1], self.input_shape[2]]))
+            self.aux2 = tf.nn.softmax(tf.image.resize(self.conv_batchN_relu(self.deconv_up1, 1, 1, self.num_classes, name='conv912', relu=False), [self.input_shape[1], self.input_shape[2]]))
         
         
     def _create_loss(self, label):
-        self.loss = tf.reduce_mean(-tf.reduce_sum(tf.multiply(label*tf.log(self.softmax+1e-10), self.weights), axis=[3]))
+        self.loss = tf.reduce_mean(input_tensor=-tf.reduce_sum(input_tensor=tf.multiply(label*tf.math.log(self.softmax+1e-10), self.weights), axis=[3]))
         if self.has_aux_loss:
-            aux_loss1 = tf.reduce_mean(-tf.reduce_sum(tf.multiply(label*tf.log(self.aux1+1e-10), self.weights), axis=[3]))
-            aux_loss2 = tf.reduce_mean(-tf.reduce_sum(tf.multiply(label*tf.log(self.aux2+1e-10), self.weights), axis=[3]))
+            aux_loss1 = tf.reduce_mean(input_tensor=-tf.reduce_sum(input_tensor=tf.multiply(label*tf.math.log(self.aux1+1e-10), self.weights), axis=[3]))
+            aux_loss2 = tf.reduce_mean(input_tensor=-tf.reduce_sum(input_tensor=tf.multiply(label*tf.math.log(self.aux2+1e-10), self.weights), axis=[3]))
             self.loss = self.loss+0.6*aux_loss1+0.5*aux_loss2
     def create_optimizer(self):
-        self.lr = tf.train.polynomial_decay(self.learning_rate, self.global_step,
+        self.lr = tf.compat.v1.train.polynomial_decay(self.learning_rate, self.global_step,
                                             self.decay_steps, power=self.power)
-        self.train_op = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.global_step)
+        self.train_op = tf.compat.v1.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.global_step)
 
     def _create_summaries(self):
-        with tf.name_scope("summaries"):
-            tf.summary.scalar("loss", self.loss)
-            tf.summary.histogram("histogram_loss", self.loss)
-            self.summary_op = tf.summary.merge_all()
+        with tf.compat.v1.name_scope("summaries"):
+            tf.compat.v1.summary.scalar("loss", self.loss)
+            tf.compat.v1.summary.histogram("histogram_loss", self.loss)
+            self.summary_op = tf.compat.v1.summary.merge_all()
     
     def build_graph(self, data, label=None):
         self._setup(data)

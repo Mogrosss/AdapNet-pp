@@ -24,7 +24,7 @@ def get_train_batch(config):
     dataset = dataset.batch(config['batch_size'])
     dataset = dataset.repeat(100)
     dataset = dataset.prefetch(1)
-    iterator = dataset.make_one_shot_iterator()
+    iterator = tf.compat.v1.data.make_one_shot_iterator(dataset)
     return iterator
 
 def get_train_data(config):
@@ -42,7 +42,7 @@ def get_test_batch(config):
     dataset = tf.data.TFRecordDataset(filenames)
     dataset = dataset.map(lambda x: parser(x, config['num_classes']))
     dataset = dataset.batch(config['batch_size'])
-    iterator = dataset.make_initializable_iterator()
+    iterator = tf.compat.v1.data.make_initializable_iterator(dataset)
     return iterator
 
 def compute_output_matrix(label_max, pred_max, output_matrix):
@@ -79,14 +79,14 @@ def compute_iou(output_matrix):
 
 def parser(proto_data, num_classes):
 
-    features = {'height':tf.FixedLenFeature((), tf.int64, default_value=0),
-                'width':tf.FixedLenFeature((), tf.int64, default_value=0),
-                'modality1':tf.FixedLenFeature((), tf.string, default_value=""),
-                'label':tf.FixedLenFeature((), tf.string, default_value="")
+    features = {'height':tf.io.FixedLenFeature((), tf.int64, default_value=0),
+                'width':tf.io.FixedLenFeature((), tf.int64, default_value=0),
+                'modality1':tf.io.FixedLenFeature((), tf.string, default_value=""),
+                'label':tf.io.FixedLenFeature((), tf.string, default_value="")
                }
-    parsed_features = tf.parse_single_example(proto_data, features)
-    modality1 = tf.decode_raw(parsed_features['modality1'], tf.uint8)
-    label = tf.decode_raw(parsed_features['label'], tf.uint8)
+    parsed_features = tf.io.parse_single_example(serialized=proto_data, features=features)
+    modality1 = tf.io.decode_raw(parsed_features['modality1'], tf.uint8)
+    label = tf.io.decode_raw(parsed_features['label'], tf.uint8)
 
     height = tf.cast(parsed_features['height'], tf.int32)
     width = tf.cast(parsed_features['width'], tf.int32)

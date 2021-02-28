@@ -39,7 +39,7 @@ def decode(txt):
 
 def convert(f, record_name, mean_flag):
     count = 0.0
-    writer = tf.python_io.TFRecordWriter(record_name)
+    writer = tf.io.TFRecordWriter(record_name)
 
     if mean_flag:
         mean = np.zeros(cv2.imread(f[0][0]).shape, np.float32)

@@ -31,18 +31,18 @@ def test_func(config):
     data_list, iterator = get_test_data(config)
     resnet_name = 'resnet_v2_50'
 
-    with tf.variable_scope(resnet_name):
+    with tf.compat.v1.variable_scope(resnet_name):
         model = model_func(num_classes=config['num_classes'], training=False)
-        images_pl = tf.placeholder(tf.float32, [None, config['height'], config['width'], 3])
+        images_pl = tf.compat.v1.placeholder(tf.float32, [None, config['height'], config['width'], 3])
         model.build_graph(images_pl)
 
-    config1 = tf.ConfigProto()
+    config1 = tf.compat.v1.ConfigProto()
     config1.gpu_options.allow_growth = True
-    sess = tf.Session(config=config1)
-    sess.run(tf.global_variables_initializer())
-    import_variables = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES)
+    sess = tf.compat.v1.Session(config=config1)
+    sess.run(tf.compat.v1.global_variables_initializer())
+    import_variables = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES)
     print ('total_variables_loaded:', len(import_variables))
-    saver = tf.train.Saver(import_variables)
+    saver = tf.compat.v1.train.Saver(import_variables)
     saver.restore(sess, config['checkpoint'])
     sess.run(iterator.initializer)
     step = 0
