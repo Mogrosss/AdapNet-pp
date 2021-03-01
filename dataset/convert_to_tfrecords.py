@@ -49,7 +49,7 @@ def convert(f, record_name, mean_flag):
         if mean_flag:
             mean += modality1
         
-        label = cv2.imread(name[1], cv2.IMREAD_ANYCOLOR)
+        label = cv2.imread(name[1], cv2.IMREAD_GRAYSCALE)
         try:
             assert len(label.shape)==2
         except AssertionError as e:
