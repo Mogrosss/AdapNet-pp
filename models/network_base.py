@@ -69,6 +69,9 @@ class Network(object):
             name = 'weights'
 
         strides = [1, 1, 1, 1]
+        #print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+        #print(weight_shape)
+
         with tf.compat.v1.variable_scope(name):
             kernel = tf.compat.v1.get_variable('', weight_shape,
                                      initializer=initializer,
@@ -154,7 +157,7 @@ class Network(object):
 
         in_shape = tf.shape(input=inputs)
         h = in_shape[1]*stride
-        w = in_shape[2]*stride 
+        w = in_shape[2]*stride
         new_shape = [in_shape[0], h, w, out_channels]
         return tf.nn.conv2d_transpose(inputs, kernel, new_shape, strides=[1, stride, stride, 1], padding=padding)
 
@@ -182,8 +185,8 @@ class Network(object):
 
     def unit_0(self, x, out_channels, block, unit):
         with tf.compat.v1.variable_scope('block%d/unit_%d/bottleneck_v1'%(block, unit)):
-            b_u_1r_cout = self.conv_batchN_relu(x, 1, 1, out_channels/4, name='conv1')
-            b_u_3_cout = self.conv_batchN_relu(b_u_1r_cout, 3, 1, out_channels/4, name='conv2')
+            b_u_1r_cout = self.conv_batchN_relu(x, 1, 1, out_channels//4, name='conv1')
+            b_u_3_cout = self.conv_batchN_relu(b_u_1r_cout, 3, 1, out_channels//4, name='conv2')
             with tf.compat.v1.variable_scope('conv3'):
                 b_u_1e_cout=self.conv2d(b_u_3_cout, 1, 1, out_channels)
 
@@ -191,8 +194,8 @@ class Network(object):
                 b_u_s_cout = self.conv2d(b_u_1r_cout, 1, 1, out_channels)
 
             b_u_out = tf.add(b_u_1e_cout, b_u_s_cout)
-        return b_u_out    
-    
+        return b_u_out
+
     def unit_1(self, x, out_channels, stride, block, unit, shortcut=False):
         if shortcut == False:
             with tf.compat.v1.variable_scope('block%d/unit_%d/bottleneck_v1/conv3'%(block, unit-1)):
@@ -200,8 +203,8 @@ class Network(object):
         else:
                 x_bn = x
         with tf.compat.v1.variable_scope('block%d/unit_%d/bottleneck_v1'%(block, unit)):
-            b_u_1r_cout = self.conv_batchN_relu(x_bn, 1, 1, out_channels/4, name='conv1')
-            b_u_3_cout = self.conv_batchN_relu(b_u_1r_cout, 3, stride, out_channels/4, name='conv2')
+            b_u_1r_cout = self.conv_batchN_relu(x_bn, 1, 1, out_channels//4, name='conv1')
+            b_u_3_cout = self.conv_batchN_relu(b_u_1r_cout, 3, stride, out_channels//4, name='conv2')
             with tf.compat.v1.variable_scope('conv3'):
                 b_u_1e_cout = self.conv2d(b_u_3_cout, 1, 1, out_channels)
 
@@ -211,16 +214,16 @@ class Network(object):
                     b_u_out = tf.add(b_u_1e_cout, b_u_s_cout)
             else:
                 b_u_out = tf.add(b_u_1e_cout, x)
-             
+
             return b_u_out
 
     def unit_3(self, x, out_channels, block, unit):
         with tf.compat.v1.variable_scope('block%d/unit_%d/bottleneck_v1/conv3'%(block, unit-1)):
             x_bn = tf.nn.relu(self.batch_norm(x))
         with tf.compat.v1.variable_scope('block%d/unit_%d/bottleneck_v1'%(block, unit)):
-            b_u_1r_cout = self.conv_batchN_relu(x_bn, 1, 1, out_channels/4, name='conv1')
+            b_u_1r_cout = self.conv_batchN_relu(x_bn, 1, 1, out_channels//4, name='conv1')
             with tf.compat.v1.variable_scope('conv2'):
-                b3_u3_3_cout = self.split_conv2d(b_u_1r_cout, 3, 2, out_channels/4)
+                b3_u3_3_cout = self.split_conv2d(b_u_1r_cout, 3, 2, out_channels//4)
                 b3_u3_3_bnout = self.batch_norm(b3_u3_3_cout)
                 b3_u3_3_ract = tf.nn.relu(b3_u3_3_bnout)
 
@@ -239,9 +242,9 @@ class Network(object):
                 x_bn = tf.nn.relu(self.batch_norm(x))
 
         with tf.compat.v1.variable_scope('block%d/unit_%d/bottleneck_v1'%(block, unit)):
-            b_u_1r_cout = self.conv_batchN_relu(x_bn, 1, 1, out_channels/4, name='conv1')
+            b_u_1r_cout = self.conv_batchN_relu(x_bn, 1, 1, out_channels//4, name='conv1')
             with tf.compat.v1.variable_scope('conv2'):
-                b3_u3_3_cout = self.split_conv2d(b_u_1r_cout, 3, 2, out_channels/4, both_atrous=True)
+                b3_u3_3_cout = self.split_conv2d(b_u_1r_cout, 3, 2, out_channels//4, both_atrous=True)
                 b3_u3_3_bnout = self.batch_norm(b3_u3_3_cout)
                 b3_u3_3_ract = tf.nn.relu(b3_u3_3_bnout)
 

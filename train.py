@@ -22,6 +22,8 @@ import tensorflow as tf
 import yaml
 from dataset.helper import *
 
+tf.compat.v1.disable_eager_execution()
+
 PARSER = argparse.ArgumentParser()
 PARSER.add_argument('-c', '--config', default='config/cityscapes_train.config')
 
@@ -42,7 +44,7 @@ def train_func(config):
                                                 config['num_classes']])
         model.build_graph(images_pl, labels_pl)
         model.create_optimizer()
- 
+
     config1 = tf.compat.v1.ConfigProto()
     config1.gpu_options.allow_growth = True
     sess = tf.compat.v1.Session(config=config1)
@@ -61,6 +63,7 @@ def train_func(config):
 
     else:
         if 'intialize' in config:
+            #print(config['intialize'])
             reader = tf.compat.v1.train.NewCheckpointReader(config['intialize'])
             var_str = reader.debug_string()
             name_var = re.findall('[A-Za-z0-9/:_]+ ', var_str)
