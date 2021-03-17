@@ -63,6 +63,7 @@ def test_func(config):
             prediction = np.argmax(probabilities[0], 3)
             print('prediction')
             print(prediction)
+            print(prediction.shape)
             gt = np.argmax(label, 3)
             print('gt')
             print(gt)
