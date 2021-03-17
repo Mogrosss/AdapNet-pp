@@ -52,15 +52,22 @@ def test_func(config):
     while 1:
         try:
             img, label = sess.run([data_list[0], data_list[1]])
+            print('img')
+            print(img)
+            print('label')
+            print(label)
             feed_dict = {images_pl : img}
             probabilities = sess.run([model.softmax], feed_dict=feed_dict)
+            print('probabilities')
+            print(probabilities)
             prediction = np.argmax(probabilities[0], 3)
-            gt = np.argmax(label, 3)
-            prediction[gt == 0] = 0
+            print('prediction')
             print(prediction)
-            print('fos')
+            gt = np.argmax(label, 3)
+            print('gt')
+            print(gt)
+            prediction[gt == 0] = 0
             output_matrix = compute_output_matrix(gt, prediction, output_matrix)
-            print(output_matrix)
             total_num += label.shape[0]
             if (step+1) % config['skip_step'] == 0:
                 print ('%s %s] %d. iou updating' \
