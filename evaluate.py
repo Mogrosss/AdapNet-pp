@@ -36,6 +36,7 @@ def test_func(config):
         images_pl = tf.placeholder(tf.float32, [None, config['height'], config['width'], 3])
         model.build_graph(images_pl)
 
+
     config1 = tf.ConfigProto()
     config1.gpu_options.allow_growth = True
     sess = tf.Session(config=config1)
