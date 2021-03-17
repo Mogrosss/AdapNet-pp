@@ -54,8 +54,10 @@ def test_func(config):
             img, label = sess.run([data_list[0], data_list[1]])
             print('img')
             print(img)
+            print(img.shape)
             print('label')
             print(label)
+            print(label.shape)
             feed_dict = {images_pl : img}
             probabilities = sess.run([model.softmax], feed_dict=feed_dict)
             print('probabilities')
