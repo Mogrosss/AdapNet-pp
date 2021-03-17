@@ -57,6 +57,8 @@ def test_func(config):
             prediction = np.argmax(probabilities[0], 3)
             gt = np.argmax(label, 3)
             prediction[gt == 0] = 0
+            print(prediction)
+            print('fos')
             output_matrix = compute_output_matrix(gt, prediction, output_matrix)
             print(output_matrix)
             total_num += label.shape[0]
