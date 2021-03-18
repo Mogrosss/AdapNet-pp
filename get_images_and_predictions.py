@@ -44,18 +44,27 @@ def test_func(config):
     print ('total_variables_loaded:', len(import_variables))
     saver = tf.train.Saver(import_variables)
     saver.restore(sess, config['checkpoint'])
+    a=0
+    b=0
     sess.run(iterator.initializer)
     while 1:
         try:
             img, label = sess.run([data_list[0], data_list[1]])
             feed_dict = {images_pl : img}
             probabilities = sess.run([model.softmax], feed_dict=feed_dict)
+            for image in img:
+                if a == 0:
+                    a = image
+                else:
+                    a = a.append(image)
             prediction = np.argmax(probabilities[0], 3)
-            print(img)
-            print(img.shape)
-            print(prediction)
-            print(prediction.shape)
+            #print(img)
+            #print(img.shape)
+            #print(prediction)
+            #print(prediction.shape)
         except tf.errors.OutOfRangeError:
+            print(a)
+            print(a.shape)
             break
 
 def main():
