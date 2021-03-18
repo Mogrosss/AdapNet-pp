@@ -44,7 +44,7 @@ def test_func(config):
     print ('total_variables_loaded:', len(import_variables))
     saver = tf.train.Saver(import_variables)
     saver.restore(sess, config['checkpoint'])
-    a=0
+    a=None
     b=0
     sess.run(iterator.initializer)
     while 1:
@@ -53,7 +53,7 @@ def test_func(config):
             feed_dict = {images_pl : img}
             probabilities = sess.run([model.softmax], feed_dict=feed_dict)
             for image in img:
-                if a == 0:
+                if a == None:
                     a = image
                 else:
                     a = a.append(image)
