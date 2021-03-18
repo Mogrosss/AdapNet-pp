@@ -44,8 +44,8 @@ def test_func(config):
     print ('total_variables_loaded:', len(import_variables))
     saver = tf.train.Saver(import_variables)
     saver.restore(sess, config['checkpoint'])
-    a = np.ndarray(shape=(1,384,768,3))
-    b= np.ndarray(shape=(1,384,768))
+    image_numpy = np.empty([1,384,768,3], np.float64)
+    mask_numpy = np.empty([1,384,768], np.int64)
     sess.run(iterator.initializer)
     while 1:
         try:
@@ -53,15 +53,15 @@ def test_func(config):
             feed_dict = {images_pl : img}
             probabilities = sess.run([model.softmax], feed_dict=feed_dict)
             for image in img:
-                print(image.shape)
+                image_numpy.append(image)
             prediction = np.argmax(probabilities[0], 3)
             #print(img)
             #print(img.shape)
             #print(prediction)
             #print(prediction.shape)
         except tf.errors.OutOfRangeError:
-            #print(a)
-            #print(a.shape)
+            print(image_numpy)
+            print(image_numpy.shape)
             break
 
 def main():
