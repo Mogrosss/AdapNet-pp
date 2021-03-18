@@ -51,8 +51,8 @@ def test_func(config):
             feed_dict = {images_pl : img}
             probabilities = sess.run([model.softmax], feed_dict=feed_dict)
             prediction = np.argmax(probabilities[0], 3)
-            print(img)
-            print(prediction)
+            print(img[0])
+            print(prediction[0])
         except tf.errors.OutOfRangeError:
             break
 
