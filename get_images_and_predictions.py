@@ -52,8 +52,7 @@ def test_func(config):
             img, label = sess.run([data_list[0], data_list[1]])
             feed_dict = {images_pl : img}
             probabilities = sess.run([model.softmax], feed_dict=feed_dict)
-            for image in img:
-                image_numpy = np.append(image_numpy,image,axis=0)
+            image_numpy = np.append(image_numpy,img,axis=0)
             prediction = np.argmax(probabilities[0], 3)
             #print(img)
             #print(img.shape)
