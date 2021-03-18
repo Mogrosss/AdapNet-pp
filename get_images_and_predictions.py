@@ -36,7 +36,6 @@ def test_func(config):
         images_pl = tf.placeholder(tf.float32, [None, config['height'], config['width'], 3])
         model.build_graph(images_pl)
 
-
     config1 = tf.ConfigProto()
     config1.gpu_options.allow_growth = True
     sess = tf.Session(config=config1)
@@ -46,41 +45,15 @@ def test_func(config):
     saver = tf.train.Saver(import_variables)
     saver.restore(sess, config['checkpoint'])
     sess.run(iterator.initializer)
-    step = 0
-    total_num = 0
-    output_matrix = np.zeros([config['num_classes'], 3])
     while 1:
         try:
             img, label = sess.run([data_list[0], data_list[1]])
-            #print('img')
-            #print(img)
-            #print(img.shape)
-            #print('label')
-            #print(label)
-            #print(label.shape)
             feed_dict = {images_pl : img}
             probabilities = sess.run([model.softmax], feed_dict=feed_dict)
-            #print('probabilities')
-            #print(probabilities)
             prediction = np.argmax(probabilities[0], 3)
-            #print('prediction')
-            #print(prediction)
-            #print(prediction.shape)
-            gt = np.argmax(label, 3)
-            #print('gt')
-            #print(gt)
-            prediction[gt == 0] = 0
-            output_matrix = compute_output_matrix(gt, prediction, output_matrix)
-            total_num += label.shape[0]
-            if (step+1) % config['skip_step'] == 0:
-                print ('%s %s] %d. iou updating' \
-                  % (str(datetime.datetime.now()), str(os.getpid()), total_num))
-                print ('mIoU: ', compute_iou(output_matrix))
-
-            step += 1
-
+            print(img)
+            print(prediction)
         except tf.errors.OutOfRangeError:
-            print ('mIoU: ', compute_iou(output_matrix), 'total_data: ', total_num)
             break
 
 def main():
