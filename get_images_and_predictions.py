@@ -53,7 +53,7 @@ def test_func(config):
             feed_dict = {images_pl : img}
             probabilities = sess.run([model.softmax], feed_dict=feed_dict)
             for image in img:
-                if a == None:
+                if a.all() == None:
                     a = image
                 else:
                     a = a.append(image)
