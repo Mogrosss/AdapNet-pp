@@ -60,8 +60,8 @@ def test_func(config):
             #print(prediction)
             #print(prediction.shape)
         except tf.errors.OutOfRangeError:
-            print(image_numpy)
-            print(image_numpy.shape)
+            np.savetxt('test.out', image_numpy, delimiter=',')
+            np.savetxt('test.out', prediction_numpy, delimiter=',')
             break
 
 def main():
