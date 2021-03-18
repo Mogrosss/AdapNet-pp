@@ -45,7 +45,7 @@ def test_func(config):
     saver = tf.train.Saver(import_variables)
     saver.restore(sess, config['checkpoint'])
     image_numpy = np.empty([1,384,768,3], np.float64)
-    mask_numpy = np.empty([1,384,768], np.int64)
+    prediction_numpy = np.empty([1,384,768], np.int64)
     sess.run(iterator.initializer)
     while 1:
         try:
@@ -54,6 +54,7 @@ def test_func(config):
             probabilities = sess.run([model.softmax], feed_dict=feed_dict)
             image_numpy = np.append(image_numpy,img,axis=0)
             prediction = np.argmax(probabilities[0], 3)
+            prediction_numpy = np.append(prediction_numpy,prediction,axis=0)
             #print(img)
             #print(img.shape)
             #print(prediction)
